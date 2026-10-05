@@ -47,7 +47,7 @@ export default function Layout() {
               }}
             />
             <Tabs.Screen 
-              name="myhealth" 
+              name="health" 
               options={{
                 title: "My Health",
                 tabBarIcon: ({color}) => (
