@@ -74,9 +74,7 @@ export default function Layout() {
             <Tabs.Screen 
               name="HomeFeatureCard" 
               options={{
-                title: "Home",
-                tabBarShowLabel: false,
-                tabBarButton: () => null,
+                tabBarStyle: { display: 'none' },
               }}
             />
         </Tabs>    

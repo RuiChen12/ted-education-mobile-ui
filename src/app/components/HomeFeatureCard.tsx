@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { router, Href } from 'expo-router';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import react from "react";
 
 type HomeFeatureCardProps ={
     iconname: React.ComponentProps<typeof MaterialCommunityIcons>['name'];

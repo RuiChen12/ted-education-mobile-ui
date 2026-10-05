@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import HomeFeatureCard from './HomeFeatureCard';
+import HomeFeatureCard from '../../components/HomeFeatureCard';
 
 export default function HomeScreen() {
   return (
