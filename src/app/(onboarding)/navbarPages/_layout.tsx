@@ -1,5 +1,4 @@
 import { Tabs } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import React from "react";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
@@ -70,6 +69,14 @@ export default function Layout() {
                     color={color}
                   />
                 )
+              }}
+            />
+            <Tabs.Screen 
+              name="HomeFeatureCard" 
+              options={{
+                title: "Home",
+                tabBarShowLabel: false,
+                tabBarButton: () => null,
               }}
             />
         </Tabs>    
