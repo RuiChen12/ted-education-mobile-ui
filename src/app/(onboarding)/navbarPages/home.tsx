@@ -1,8 +1,6 @@
-import { Pressable, Text, View, ScrollView } from 'react-native';
-import { router } from 'expo-router';
+import { Text, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import HomeFeatureCard from '../../components/HomeFeatureCard';
 
 export default function HomeScreen() {
@@ -29,7 +27,7 @@ export default function HomeScreen() {
                   }}
                 >
                   Learn. Track. Organize. Understand. {'\n'}Take control of your eye health.
-               </Text>
+                </Text>
                 <HomeFeatureCard
                   iconname="book"
                   name="Learn"
