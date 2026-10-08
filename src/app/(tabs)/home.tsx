@@ -33,35 +33,35 @@ export default function HomeScreen() {
                   name="Learn"
                   accessibilityLabel="Learn"
                   description="Helpful education & resources to guide you in understanding TED."
-                  link="/navbarPages/learn"
+                  link="/(tabs)/learn"
                 />
                 <HomeFeatureCard
                   iconname="chart-bar"
                   name="Track"
                   accessibilityLabel="Track"
                   description="Track symptoms, CAS assessments and photos."
-                  link="/navbarPages/track"
+                  link="/(tabs)/track"
                 />
                 <HomeFeatureCard
                   iconname="clipboard-plus"
                   name="My Health"
                   accessibilityLabel="My Health"
                   description="Organize labs, medications, imaging, treatment history, and health records."
-                  link="/navbarPages/health"
+                  link="/(tabs)/health"
                 />
                 <HomeFeatureCard
                   iconname="pill"
                   name="Treatment"
                   accessibilityLabel="Treatment"
                   description="Find available TED treatment options."
-                  link="/(onboarding)/treatment"
+                  link="/treatment"
                 />
                 <HomeFeatureCard
                   iconname="share-variant"
                   name="Share With My Doctor"
                   accessibilityLabel="Share With My Doctor"
                   description="Prepare health information to share with your doctor."
-                  link="/(onboarding)/share"
+                  link="/share"
                 />
               </View>
             </ScrollView>

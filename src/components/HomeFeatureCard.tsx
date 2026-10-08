@@ -15,7 +15,7 @@ const HomeFeatureCard = (props: HomeFeatureCardProps) => {
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={props.accessibilityLabel}
-            className=" mt-2 h-[100px] w-[100%] flex-row items-center justify-center rounded-2xl bg-[#CFB990] active:opacity-80"
+            className=" mt-2 min-h-[100px] w-[100%] py-5 flex-row items-center justify-center rounded-2xl active:opacity-80"
             style={{
                 backgroundColor: '#D8E0E4' 
                   }}
