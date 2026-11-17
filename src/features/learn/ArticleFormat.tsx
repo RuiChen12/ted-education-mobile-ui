@@ -8,7 +8,6 @@ import { TextData } from '@/features/learn/data/ArticleText';
 import NextCard from '@/features/learn/nextcard';
 import { Articles } from './data/Articles';
 import KeywordTabs from './keywordtabs';
-import * as Linking from 'expo-linking';
 
 type ArticleProps = {
     article: TextData;
