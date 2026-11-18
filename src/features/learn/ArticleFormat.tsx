@@ -1,7 +1,7 @@
 import { Text, View, ScrollView, TextInput, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, type ReactNode } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '@/components/ui/app-icon';
 import { TextData } from '@/features/learn/data/ArticleText';
@@ -18,12 +18,58 @@ export default function ArticleFormat({ article }: ArticleProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [submittedQuery, setSubmittedQuery] = useState('');
     const words = submittedQuery.toLowerCase().split(" ").filter(Boolean);
-    const matching = article.paragraphs.filter((paragraph) => {
-        const pwords = paragraph.toLowerCase().split(" ");
-        return words.every((word) => pwords.some((pword_ => pword_.startsWith(word))));
-    });
+    const fulltext = article.paragraphs.join('\n \n');
+    const hasMatches = words.some((word) => fulltext.toLowerCase().includes(word));
     const nextkey = article.key + 1;
     const nextarticle = Articles.find((article) => article.key === nextkey);
+    const findParagraph = (paragraph: string) => {
+        if (words.length === 0) {
+            return paragraph;
+        }
+
+        const lowerParagraph = paragraph.toLowerCase();
+        const highlightedParts: ReactNode[] = [];
+        let lastIndex = 0;
+        let index = 0;
+
+        while (index < paragraph.length) {
+            const matchedWord = words
+                .filter((word) => lowerParagraph.startsWith(word, index))
+                .sort((left, right) => right.length - left.length)[0];
+
+            if (!matchedWord) {
+                index += 1;
+                continue;
+            }
+
+            if (index > lastIndex) {
+                highlightedParts.push(paragraph.slice(lastIndex, index));
+            }
+
+            highlightedParts.push(
+                <Text
+                    key={`highlight-${index}`}
+                    style={{
+                        backgroundColor: '#FDE68A',
+                        color: '#17395D',
+                        fontWeight: '700',
+                    }}
+                >
+                    {paragraph.slice(index, index + matchedWord.length)}
+                </Text>
+            );
+
+            index += matchedWord.length;
+            lastIndex = index;
+        }
+
+        if (lastIndex < paragraph.length) {
+            highlightedParts.push(paragraph.slice(lastIndex));
+        }
+
+        return highlightedParts.length > 0 ? highlightedParts : paragraph;
+    };
+
     return (
         <View className="flex-1 bg-white">
             <StatusBar style="dark" />
@@ -49,7 +95,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                     {searchOpen ? (
                                         <View className="ml-5 flex-1 flex-row items-center rounded-lg border border-[#17395D]">
                                             <TextInput
-                                                accessibilityLabel="Find in article"
+                                                accessibilityLabel="Find"
                                                 placeholder="Press Enter To Search"
                                                 placeholderTextColor="#687887"
                                                 autoCapitalize="none"
@@ -58,15 +104,15 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                                 onChangeText={(text =>
                                                     setSearchQuery(text)
                                                 )}
-                                            onSubmitEditing={() => setSubmittedQuery(searchQuery.trim().toLowerCase())}
+                                                onSubmitEditing={() => setSubmittedQuery(searchQuery.trim().toLowerCase())}
 
-                                            style={{
-                                                flex: 1,
-                                                minWidth: 0,
-                                                paddingHorizontal: 12,
-                                                paddingVertical: 9,
-                                                color: '#17395D',
-                                            }}
+                                                style={{
+                                                    flex: 1,
+                                                    minWidth: 0,
+                                                    paddingHorizontal: 12,
+                                                    paddingVertical: 9,
+                                                    color: '#17395D',
+                                                }}
                                             />
                                             <Pressable
                                                 accessibilityRole="button"
@@ -74,6 +120,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                                 onPress={() => {
                                                     setSearchOpen(false);
                                                     setSearchQuery('');
+                                                    setSubmittedQuery('');
                                                 }}
                                                 className="h-10 w-10 items-center justify-center"
                                             >
@@ -103,6 +150,19 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                 </View>
                             </View>
                             <View className="w-full px-7 mt-3">
+                                {submittedQuery !== '' && !hasMatches && (
+                                    <Text
+                                        accessibilityRole="text"
+                                        className="mt-2 text-center text-[25px]"
+                                        style={{
+                                            fontFamily: 'Georgia',
+                                            fontWeight: '300',
+                                            color: 'red',
+                                        }}
+                                    >
+                                        No results found.
+                                    </Text>
+                                )}
                                 <Text
                                     className="mb-5 text-center text-[25px]"
                                     style={{
@@ -127,18 +187,15 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                     </Text>
                                     <KeywordTabs keywords={article.keywords} />
                                 </View>
-                                {article.paragraphs.map((paragraph, id) => (
-                                    <Text
-                                        key={id}
-                                        className="flex-1 text-[15px] mt-5"
-                                        style={{
-                                            fontFamily: 'Georgia',
-                                            fontWeight: '300',
-                                            color: '#17395D',
-                                        }}>
-                                        {paragraph}
-                                    </Text>
-                                ))}
+                                <Text
+                                    className="text-[15px] mt-5"
+                                    style={{
+                                        fontFamily: 'Georgia',
+                                        fontWeight: '300',
+                                        color: '#17395D',
+                                    }}>
+                                    {findParagraph(fulltext)}
+                                </Text>
                                 <View className="mb-10"></View>
                                 {nextkey !== 6 && nextarticle && (
                                     <NextCard
