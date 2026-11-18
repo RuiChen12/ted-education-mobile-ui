@@ -17,6 +17,7 @@ import {
   Scan,
   ClipboardList,
   FileText,
+  X
 } from "lucide-react-native";
 import type { ColorValue } from "react-native";
 export type AppIconName = keyof typeof icons;
@@ -48,6 +49,7 @@ const icons = {
   Medications: Pill,
   Treatments: ClipboardList,
   Records: FileText,
+  Close: X
 };
 
 const AppIcon = (props: AppIconProps) => {
