@@ -16,7 +16,7 @@ export default function LearnSearchScreen() {
   const words = submittedQuery.toLowerCase().split(/\s+/).filter((word) => Boolean(word) && !ignorewords.includes(word));
   const matching = Articles.filter((article) => {
     const articleText = ArticleText.find((text) => text.key === article.key);
-    const searchtext = [article.name, article.description, ...article.tags, ...(articleText?.paragraphs ?? []),].join(' ').toLowerCase();
+    const searchtext = [article.name, article.description, ...article.tags, ...(articleText?.paragraphs ?? [])].join(' ').toLowerCase();
     return words.some((word) => searchtext.includes(word));
   });
   return (
