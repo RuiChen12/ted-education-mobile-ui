@@ -1,13 +1,16 @@
-import { Text, View, ScrollView, TextInput, Pressable } from 'react-native';
+import { Alert, Text, View, ScrollView, TextInput, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, type ReactNode } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Linking from 'expo-linking';
 import AppIcon from '@/components/ui/app-icon';
 import { TextData } from '@/features/learn/data/ArticleText';
 import NextCard from '@/features/learn/nextcard';
 import { Articles } from './data/Articles';
 import KeywordTabs from './keywordtabs';
+
+const link_start = /(https?:\/\/[^\s]+)/gi;
 
 type ArticleProps = {
     article: TextData;
@@ -70,6 +73,34 @@ export default function ArticleFormat({ article }: ArticleProps) {
 
         return highlightedParts.length > 0 ? highlightedParts : paragraph;
     };
+    const renderParagraph = (text: string) =>
+        text.split(link_start).map((part, index) => {
+            const checkstart = part.toLowerCase();
+            if (checkstart.startsWith('http://') || checkstart.startsWith('https://')) {
+                return (
+                    <Text
+                        key={`link-${index}`}
+                        accessibilityRole="link"
+                        onPress={() => {
+                            void Linking.openURL(part).catch((error: unknown) => {
+                                Alert.alert(
+                                    'Cannot open link.',
+                                    error instanceof Error ? error.message : 'Please try again.'
+                                );
+                            });
+                        }}
+                        style={{
+                            color: '#0066CC',
+                            textDecorationLine: 'underline' 
+                        }}
+                    >
+                        {findParagraph(part)}
+                    </Text>
+                );
+            }
+
+            return <Text key={`text-${index}`}>{findParagraph(part)}</Text>;
+        });
 
     return (
         <View className="flex-1 bg-white">
@@ -195,7 +226,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                         fontWeight: '300',
                                         color: '#17395D',
                                     }}>
-                                    {findParagraph(fulltext)}
+                                    {renderParagraph(fulltext)}
                                 </Text>
                                 <View className="mb-10"></View>
                                 {nextkey !== 6 && nextarticle && (

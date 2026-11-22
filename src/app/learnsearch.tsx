@@ -12,7 +12,7 @@ import { ArticleText } from '@/features/learn/data/ArticleText';
 export default function LearnSearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
-  const ignorewords = ['this', 'of', 'it', 'the', 'and', 'an', 'your', 'can', 'is'];
+  const ignorewords = ['this', 'of', 'it', 'the', 'and', 'an', 'your', 'can', 'is', 'in', 'or', 'a', 'as', 'at', 'for', 'to', 'by', 'be', 'are', 'you'];
   const words = submittedQuery.toLowerCase().split(/\s+/).filter((word) => Boolean(word) && !ignorewords.includes(word));
   const matching = Articles.filter((article) => {
     const articleText = ArticleText.find((text) => text.key === article.key);
