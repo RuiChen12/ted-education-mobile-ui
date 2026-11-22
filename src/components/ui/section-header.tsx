@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import type { ReactNode } from "react";
 import { router, type Href } from "expo-router";
 import AppIcon from "@/components/ui/app-icon";
 import { theme } from "@/constants/theme";
@@ -8,6 +9,7 @@ type SectionHeaderProps = {
   BackButton?: boolean;
   onBackPress?: () => void;
   backRoute?: Href;
+  rightAction?: ReactNode;
 };
 // Optional backbutton for navigation, with
 // customizable behavior. If no onBackPress is provided, it will navigate
@@ -17,6 +19,7 @@ export default function SectionHeader({
   BackButton = false,
   onBackPress,
   backRoute,
+  rightAction,
 }: SectionHeaderProps) {
   return (
     <View style={styles.container}>
@@ -41,6 +44,10 @@ export default function SectionHeader({
       )}
 
       <Text style={styles.title}>{title}</Text>
+
+      {rightAction && (
+        <View style={styles.rightAction}>{rightAction}</View>
+      )}
     </View>
   );
 }
@@ -55,6 +62,16 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     left: 0,
+    top: 0,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+  rightAction: {
+    position: "absolute",
+    right: 0,
     top: 0,
     minWidth: 44,
     minHeight: 44,

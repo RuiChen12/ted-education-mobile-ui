@@ -1,13 +1,13 @@
 import '../../global.css';
 import { useState } from 'react';
-import { View, ScrollView, Pressable, TextInput, Text } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, ScrollView, Pressable, TextInput, Text, StyleSheet } from 'react-native';
 import LearnCard from '@/features/learn/learncard';
 import { router } from 'expo-router';
 import AppIcon from '@/components/ui/app-icon';
 import { Articles } from '@/features/learn/data/Articles';
 import { ArticleText } from '@/features/learn/data/ArticleText';
+import { theme } from '@/constants/theme';
+import ScreenContainer from '@/components/ui/screen-container';
 
 export default function LearnSearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,24 +20,20 @@ export default function LearnSearchScreen() {
     return words.some((word) => searchtext.includes(word));
   });
   return (
-    <View className="flex-1 bg-white">
-      <StatusBar style="dark" />
-      <View className="flex-1 items-center">
-        <View className="w-full max-w-[430px] flex-1 overflow-hidden bg-white">
-          <SafeAreaView className="flex-1">
-            <ScrollView>
-              <View className="items-center px-7 pt-3">
-                <View className="w-full flex-row items-center">
+    <ScreenContainer>
+      <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.header}>
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Back"
                     onPress={() => router.back()}
-                    className="h-10 w-8 items-center justify-center"
+                    hitSlop={8}
+                    style={styles.backButton}
                   >
                     <AppIcon
                       icon='back'
-                      color='#1F2933'
-                      size={30}
+                      color={theme.colors.darkBlue}
+                      size={24}
                       strokeWidth={2}
                     />
                   </Pressable>
@@ -48,6 +44,7 @@ export default function LearnSearchScreen() {
                     autoCapitalize='none'
                     autoCorrect={false}
                     value={searchQuery}
+                    style={styles.searchInput}
                     onChangeText={(text) => {
                       setSearchQuery(text);
                       if (text === '') {
@@ -55,15 +52,6 @@ export default function LearnSearchScreen() {
                       }
                     }}
                     onSubmitEditing={() => setSubmittedQuery(searchQuery.toLowerCase())}
-                    style={{
-                      flex: 1,
-                      marginLeft: 12,
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      borderWidth: 1,
-                      borderRadius: 10,
-                      borderColor: 'black',
-                    }}
                   />
                 </View>
                 <View className="w-full flex-row">
@@ -94,11 +82,37 @@ export default function LearnSearchScreen() {
                         ))}
                   </View>
                 </View>
-              </View>
-            </ScrollView>
-          </SafeAreaView>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </ScreenContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingBottom: theme.spacing.md,
+  },
+  header: {
+    minHeight: 44,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  searchInput: {
+    alignSelf: 'stretch',
+    minHeight: 44,
+    marginLeft: 56,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: 'black',
+  },
+});
