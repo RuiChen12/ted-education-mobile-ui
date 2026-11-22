@@ -1,7 +1,6 @@
 
 export interface TextData {
     header: string;
-    keywords: string[];
     paragraphs: string[];
     key: number;
 };
@@ -9,7 +8,6 @@ export interface TextData {
 export const ArticleText: TextData[] = [
     {
         header: "What is TED?",
-        keywords: ["Common", "Symptoms", "Risk Factors", "Active", "Inactive"],
         paragraphs: [
             "Thyroid Eye Disease (TED) is an autoimmune condition where the body’s immune system mistakenly attacks and causes inflammation of the muscles and fat around your eyes. This can affect the way your eyes appear, feel, and move.",
             "TED commonly occurs in people who have a history of Graves Disease (hyperthyroidism), though it can also occur in those with Hashimoto’s disease (hypothyroidism) or even those with normal levels.",
@@ -21,7 +19,6 @@ export const ArticleText: TextData[] = [
     },
     {
         header: "Lifestyle Considerations",
-        keywords: ["Smoking", "Stress", "Exercise"],
         paragraphs: [
             "Smoking cessation",
             "Exercise and healthy diet",
@@ -31,7 +28,6 @@ export const ArticleText: TextData[] = [
     },
     {
         header: "TED Support Groups",
-        keywords: ["Community", "Awareness", "Foundation", "Organizations"],
         paragraphs: [
             "Grave’s Disease and Thyroid Foundation (GDATF):",
             "https://gdatf.org/",
@@ -46,7 +42,6 @@ export const ArticleText: TextData[] = [
     },
     {
         header: "Treatment Options",
-        keywords: ["Supplements", "Medications", "Surgery", "Therapy", "Injections"],
         paragraphs: [
             "Selenium Supplementation",
             "Thyroidectomy vs. Radioactive Iodine",
@@ -65,7 +60,6 @@ export const ArticleText: TextData[] = [
     },
     {
         header: "Specialties Treating TED",
-        keywords: ["Endocrinologists", "Specialists", "Oncologists", "Surgeons", "Plastic Surgeons"],
         paragraphs: [
             "Endoccrinologists:\nAnna Lo\nCindy Pau\nEric Lee\nAlan Parsa\nKamonkiat Wirunsawanya(HPH)",
             "Adult Strabismus Specialists:\nDavid Young\nRupa Wong\nPeggy Liao",

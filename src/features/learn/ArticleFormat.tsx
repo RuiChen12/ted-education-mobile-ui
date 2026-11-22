@@ -22,6 +22,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
     const hasMatches = words.some((word) => fulltext.toLowerCase().includes(word));
     const nextkey = article.key + 1;
     const nextarticle = Articles.find((article) => article.key === nextkey);
+    const keywords = Articles.find((item) => item.key === article.key)?.tags ?? [];
     const findParagraph = (paragraph: string) => {
         if (words.length === 0) {
             return paragraph;
@@ -185,7 +186,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                     >
                                         Tags:
                                     </Text>
-                                    <KeywordTabs keywords={article.keywords} />
+                                    <KeywordTabs keywords={keywords} />
                                 </View>
                                 <Text
                                     className="text-[15px] mt-5"
