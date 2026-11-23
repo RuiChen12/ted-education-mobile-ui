@@ -17,6 +17,9 @@ import {
   Scan,
   ClipboardList,
   FileText,
+  Notebook,
+  Camera,
+  ClipboardCheck,
   X
 } from "lucide-react-native";
 import type { ColorValue } from "react-native";
@@ -49,7 +52,10 @@ const icons = {
   Medications: Pill,
   Treatments: ClipboardList,
   Records: FileText,
-  Close: X
+  Close: X,
+  Test: Notebook,
+  Results: ClipboardCheck,
+  Camera: Camera
 };
 
 const AppIcon = (props: AppIconProps) => {

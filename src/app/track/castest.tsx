@@ -4,7 +4,7 @@ import { Link } from "expo-router";
 export default function CasScreen() {
   return (
     <View className="flex-1 bg-white items-center justify-center">
-        
+        cas
     </View>
   );
 }
