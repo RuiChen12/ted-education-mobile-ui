@@ -12,9 +12,9 @@ const DisclaimerCard = (props: DisclaimerCardProps) => {
       <View
           accessibilityRole="disclaimer"
           accessibilityLabel={props.accessibilityLabel}
-          className=" mt-2 min-h-[100px] w-[100%] py-5 flex-row items-center justify-center rounded-2xl active:opacity-80"
+          className=" mt-2 min-h-[100px] w-[100%] py-5 flex-row items-center justify-center active:opacity-80"
           style={{
-              backgroundColor: '#ffee00'
+              backgroundColor: '#acacac'
                 }}
               >
                 <View className="w-full flex-row items-center justify-between px-4">
