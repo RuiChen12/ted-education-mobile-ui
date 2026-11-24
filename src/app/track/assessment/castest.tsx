@@ -5,14 +5,64 @@ import { useRouter } from "expo-router";
 
 const questions = [
   {
-    question: "test1",
-    options: ["answer1", "answer2"],
-    value: "answer1"
+    component: "Spontaneous Orbital Pain",
+    question: "Do you feel pain or pressure behind your eyes when they are at rest?",
+    options: ["Yes", "No"],
+    value: "Yes"
   },
   {
-    question: "test2",
-    options: ["answer1", "answer2"],
-    value: "answer1"
+    component: "Gaze Evoked Orbital Pain",
+    question: "Do you feel pain or tightness when looking in different directions?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Conjunctival Chemosis",
+    question: "Do you feel swelling or have a jelly-like appearance over the surface of your eye?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Eyelid Swelling",
+    question: "Are you experiencing fluctuating swelling with your upper or lower eyelids?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Eyelid Erythema",
+    question: "Are you experiencing redness of your upper or lower eyelid skin?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Conjunctival Injection",
+    question: "Are you experiencing any eye redness?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Caruncular Inflammation",
+    question: "Are you experiencing redness and swelling of the fleshy tissue at the inner corner of your eye?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Corrected Vision Over Three Months",
+    question: "Over the last three months, do you believe that your corrected vision in either eye has worsened?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Bulging Over Three Months",
+    question: "Over the last three months, do you believe that the bulging in either of your eyes has worsened significantly?",
+    options: ["Yes", "No"],
+    value: "Yes"
+  },
+  {
+    component: "Eye Movement/Double Vision Over Three Months",
+    question: "Over the last three months, do you believe that the restriction of your eye movement and/or double vision has become significantly worse?",
+    options: ["Yes", "No"],
+    value: "Yes"
   },
 ];
 

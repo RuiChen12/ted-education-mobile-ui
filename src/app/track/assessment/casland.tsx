@@ -6,7 +6,7 @@ export default function CasLanding() {
 
     <View style={styles.container}>
       <Text style={styles.title}>TED CAS Assessment</Text>
-      <Text style={styles.subtitle}>Answer questions to track TED symptoms</Text>
+      <Text style={styles.subtitle}>Answer questions for better self-monitoring</Text>
       <Link href="/track/assessment/castest" asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Begin Assessment</Text>
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     fontFamily: "Georgia",
     fontSize: 18,
     color: "#666",
-    marginBottom: 40,
+    marginBottom: 20,
   },
   button: {
     backgroundColor: "#3498db",

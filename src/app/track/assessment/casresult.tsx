@@ -11,7 +11,6 @@ interface AnswerItem {
 export default function ResultsScreen() {
   const router = useRouter();
   const { score, answers } = useLocalSearchParams();
-  const totalQuestions = 10;
   const answerData: AnswerItem[] = JSON.parse(answers as string);
 
   return (
@@ -19,7 +18,7 @@ export default function ResultsScreen() {
       <Text style={styles.title}>Assessment Completed</Text>
       <Text style={styles.subtitle}>Your Score:</Text>
       <Text style={styles.score}>
-        {score}/{totalQuestions}
+        {score}
       </Text>
 
       <ScrollView style={styles.answersContainer}>
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
   },
   score: {
     fontSize: 24,
-    color: "#3498db",
+    color: "black",
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "center",
@@ -106,7 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   homeButton: {
-    backgroundColor: "green",
+    backgroundColor: "#17395D",
   },
   buttonText: {
     color: "white",
