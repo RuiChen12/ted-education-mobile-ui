@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface AnswerItem {
+  component: string;
   question: string;
   answer: string;
   points: number;
@@ -14,31 +15,37 @@ export default function ResultsScreen() {
   const answerData: AnswerItem[] = JSON.parse(answers as string);
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
-      <Text style={styles.title}>Assessment Completed</Text>
-      <Text style={styles.subtitle}>Your Score:</Text>
-      <Text style={styles.score}>
-        {score}
-      </Text>
+    <>
+      <Stack.Screen options={{ gestureEnabled: false }} />
+      <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
+        <Text style={styles.title}>Assessment Completed</Text>
+        <Text style={styles.subtitle}>Your Score:</Text>
+        <Text style={styles.score}>
+          {score}
+        </Text>
 
-      <ScrollView style={styles.answersContainer}>
-        <Text style={styles.answersTitle}>Your Answers:</Text>
-        {answerData.map((item, index) => (
-          <View key={index} style={styles.answerItem}>
-            <Text style={styles.answerText}>
-              Q{index + 1}: {item.question} — {item.answer}
-            </Text>
-            <Text style={styles.answerStatus}>+{item.points}</Text>
-          </View>
-        ))}
-      </ScrollView>
-      <Pressable 
-        style={[styles.button, styles.homeButton]}
-        onPress={() => router.replace("/(tabs)/home")}
-      >
-        <Text style={styles.buttonText}>Home</Text>
-      </Pressable>
-    </SafeAreaView>
+        <ScrollView style={styles.answersContainer}>
+          <Text style={styles.answersTitle}>Your Answers:</Text>
+          {answerData.map((item, index) => (
+            <View key={index} style={styles.answerItem}>
+              <Text style={styles.componentText}>
+                {item.component}
+              </Text>
+              <Text style={styles.answerText}>
+                Q{index + 1}: {item.question} {'\nA:'} {item.answer}
+              </Text>
+              <Text style={styles.answerStatus}>+{item.points}</Text>
+            </View>
+          ))}
+        </ScrollView>
+        <Pressable
+          style={[styles.button, styles.homeButton]}
+          onPress={() => router.replace("/(tabs)/home")}
+        >
+          <Text style={styles.buttonText}>Home</Text>
+        </Pressable>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -49,18 +56,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   title: {
+    fontFamily: "Georgia",
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
   },
   subtitle: {
+    fontFamily: "Georgia",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
   },
   score: {
+    fontFamily: "Georgia",
     fontSize: 24,
     color: "black",
     fontWeight: "bold",
@@ -68,6 +78,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   message: {
+    fontFamily: "Georgia",
     fontSize: 20,
     marginBottom: 20,
     textAlign: "center",
@@ -78,6 +89,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   answersTitle: {
+    fontFamily: "Georgia",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
@@ -91,10 +103,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   answerText: {
+    fontFamily: "Georgia",
     fontSize: 16,
     marginBottom: 5,
   },
+  componentText: {
+    fontFamily: "Georgia",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#17395D",
+    marginBottom: 5,
+  },
   answerStatus: {
+    fontFamily: "Georgia",
     fontWeight: "bold",
   },
   button: {
@@ -108,6 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#17395D",
   },
   buttonText: {
+    fontFamily: "Georgia",
     color: "white",
     textAlign: "center",
     fontSize: 18,
