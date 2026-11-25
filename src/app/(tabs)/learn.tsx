@@ -1,82 +1,74 @@
+import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useLanguage as useLocale10 } from '@/i18n/LanguageContext';
-import { View, ScrollView , Pressable } from 'react-native';
-import { AppText as Text } from '../../components/ui/AppText';
 import { router } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import LearnCard from '@/features/learn/learncard';
 import MainCard from '@/features/learn/maincard';
 import AppIcon from '@/components/ui/app-icon';
 import { Articles } from '@/features/learn/data/Articles';
+import SectionHeader from '@/components/ui/section-header';
+import ScreenContainer from '@/components/ui/screen-container';
+import { theme } from '@/constants/theme';
 
 export default function LearnScreen() {
   const { tr: tr10 } = useLocale10();
 
     return (
-        <View className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="flex-1 items-center">
-                <View className="w-full max-w-[430px] flex-1 overflow-hidden bg-white">
-                    <SafeAreaView className="flex-1">
-                        <ScrollView>
-                            <View className="items-center px-7 pt-3">
-                                <View className="w-full flex-row items-center justify-between">
-                                    <Pressable
-                                        accessibilityRole="button"
-                                        accessibilityLabel={tr10("Back")}
-                                        onPress={() => router.back()}
-                                        className="h-10 w-10 items-center justify-center"
-                                    >
-                                        <AppIcon
-                                            icon='back'
-                                            color='#17395D'
-                                            size={30}
-                                            strokeWidth={2}
-                                        />
-                                    </Pressable>
-                                    <Text
-                                        className="flex-1 text-center text-[25px]"
-                                        style={{
-                                            fontFamily: 'Georgia',
-                                            fontWeight: '400',
-                                            color: '#17395D',
-                                        }}
-                                    >{tr10("Learn")} </Text>
-                                    <Pressable
-                                        accessibilityRole="button"
-                                        accessibilityLabel={tr10("Search")}
-                                        onPress={() => router.push('/learnsearch')}
-                                        className="h-10 w-10 items-center justify-center"
-                                    >
-                                        <AppIcon
-                                            icon='search'
-                                            size={25}
-                                            color='#17395D'
-                                            strokeWidth={2}
-                                        />
-                                    </Pressable>
-                                </View>
-                                <MainCard
-                                    background={require('../../../assets/images/maincard-image.jpg')}
-                                    name={"Understanding\nThyroid Eye Disease"}
-                                    accessibilityLabel={tr10("Understanding Thyroid Eye Disease")}
-                                    link="/whatisted"
-                                />
-                                {Articles.map((article) => (
-                                    <LearnCard
-                                        key={article.key}
-                                        thumbnail={article.thumbnail}
-                                        name={article.name}
-                                        accessibilityLabel={article.accessibilityLabel}
-                                        description={article.description}
-                                        link={article.link}
-                                    />
-                                ))}
-                            </View>
-                        </ScrollView>
-                    </SafeAreaView>
+        <ScreenContainer>
+            <ScrollView contentContainerStyle={styles.container}>
+                <SectionHeader
+                    title="Learn"
+                    BackButton
+                    rightAction={
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={tr10("Search")}
+                            onPress={() => router.push('/learnsearch')}
+                            style={styles.searchButton}
+                        >
+                            <AppIcon
+                                icon='search'
+                                size={25}
+                                color='#17395D'
+                                strokeWidth={2}
+                            />
+                        </Pressable>
+                    }
+                />
+                <View style={styles.content}>
+                    <MainCard
+                        background={require('../../../assets/images/maincard-image.jpg')}
+                        name={"Understanding\nThyroid Eye Disease"}
+                        accessibilityLabel={tr10("Understanding Thyroid Eye Disease")}
+                        link="/whatisted"
+                    />
+                    {Articles.map((article) => (
+                        <LearnCard
+                            key={article.key}
+                            thumbnail={article.thumbnail}
+                            name={article.name}
+                            accessibilityLabel={article.accessibilityLabel}
+                            description={article.description}
+                            link={article.link}
+                        />
+                    ))}
                 </View>
-            </View>
-        </View>
+            </ScrollView>
+        </ScreenContainer>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        paddingBottom: theme.spacing.md,
+        gap: theme.spacing.sm,
+    },
+    searchButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    content: {
+        gap: theme.spacing.sm,
+    },
+});
