@@ -21,6 +21,8 @@ import {
   Camera,
   ClipboardCheck,
   X
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react-native";
 import type { ColorValue } from "react-native";
 export type AppIconName = keyof typeof icons;
@@ -55,7 +57,9 @@ const icons = {
   Close: X,
   Test: Notebook,
   Results: ClipboardCheck,
-  Camera: Camera
+  Camera: Camera,
+  Dropdown: ChevronDown,
+  OpenDropdown: ChevronUp,
 };
 
 const AppIcon = (props: AppIconProps) => {
