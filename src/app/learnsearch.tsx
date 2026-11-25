@@ -1,6 +1,8 @@
+import { AccessibleInput } from '@/components/ui/AccessibleInput';
+import { useLanguage as useLocale10 } from '@/i18n/LanguageContext';
 import '../../global.css';
 import { useState } from 'react';
-import { View, ScrollView, Pressable, TextInput, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Pressable, Text, StyleSheet } from 'react-native';
 import LearnCard from '@/features/learn/learncard';
 import { router } from 'expo-router';
 import AppIcon from '@/components/ui/app-icon';
@@ -10,6 +12,8 @@ import { theme } from '@/constants/theme';
 import ScreenContainer from '@/components/ui/screen-container';
 
 export default function LearnSearchScreen() {
+  const { tr: tr10 } = useLocale10();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
   const ignorewords = ['this', 'of', 'it', 'the', 'and', 'an', 'your', 'can', 'is', 'in', 'or', 'a', 'as', 'at', 'for', 'to', 'by', 'be', 'are', 'you'];
@@ -25,7 +29,7 @@ export default function LearnSearchScreen() {
                 <View style={styles.header}>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Back"
+                    accessibilityLabel={tr10("Back")}
                     onPress={() => router.back()}
                     hitSlop={8}
                     style={styles.backButton}
@@ -37,8 +41,8 @@ export default function LearnSearchScreen() {
                       strokeWidth={2}
                     />
                   </Pressable>
-                  <TextInput
-                    placeholder="Press Enter To Search"
+                  <AccessibleInput labelKey="Search"
+                    placeholder={tr10("Press Enter To Search")}
                     placeholderTextColor='#1F2933'
                     clearButtonMode="always"
                     autoCapitalize='none'
@@ -75,9 +79,7 @@ export default function LearnSearchScreen() {
                               style={{
                                 color: 'red'
                               }}
-                            >
-                              No Results Found
-                            </Text>
+                            >{tr10("No Results Found")} </Text>
                           </View>
                         ))}
                   </View>
@@ -86,7 +88,6 @@ export default function LearnSearchScreen() {
     </ScreenContainer>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     paddingBottom: theme.spacing.md,

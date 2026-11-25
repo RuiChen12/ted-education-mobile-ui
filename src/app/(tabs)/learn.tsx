@@ -1,4 +1,5 @@
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useLanguage as useLocale10 } from '@/i18n/LanguageContext';
 import { router } from 'expo-router';
 import LearnCard from '@/features/learn/learncard';
 import MainCard from '@/features/learn/maincard';
@@ -9,6 +10,8 @@ import ScreenContainer from '@/components/ui/screen-container';
 import { theme } from '@/constants/theme';
 
 export default function LearnScreen() {
+  const { tr: tr10 } = useLocale10();
+
     return (
         <ScreenContainer>
             <ScrollView contentContainerStyle={styles.container}>
@@ -18,7 +21,7 @@ export default function LearnScreen() {
                     rightAction={
                         <Pressable
                             accessibilityRole="button"
-                            accessibilityLabel="Search"
+                            accessibilityLabel={tr10("Search")}
                             onPress={() => router.push('/learnsearch')}
                             style={styles.searchButton}
                         >
@@ -35,7 +38,7 @@ export default function LearnScreen() {
                     <MainCard
                         background={require('../../../assets/images/maincard-image.jpg')}
                         name={"Understanding\nThyroid Eye Disease"}
-                        accessibilityLabel="Understanding Thyroid Eye Disease"
+                        accessibilityLabel={tr10("Understanding Thyroid Eye Disease")}
                         link="/whatisted"
                     />
                     {Articles.map((article) => (

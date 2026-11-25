@@ -1,4 +1,5 @@
 import { Alert, Text, View, ScrollView, TextInput, Pressable } from 'react-native';
+import { useLanguage as useLocale10 } from '@/i18n/LanguageContext';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, type ReactNode } from 'react';
@@ -23,6 +24,8 @@ export default function ArticleFormat({ article }: ArticleProps) {
     const words = submittedQuery.toLowerCase().split(" ").filter(Boolean);
     const fulltext = article.paragraphs.join('\n \n');
     const hasMatches = words.some((word) => fulltext.toLowerCase().includes(word));
+    const { tr: tr10 } = useLocale10();
+
     const nextkey = article.key + 1;
     const nextarticle = Articles.find((article) => article.key === nextkey);
     const keywords = Articles.find((item) => item.key === article.key)?.tags ?? [];
@@ -113,7 +116,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                 <View className="w-full flex-row items-center justify-between">
                                     <Pressable
                                         accessibilityRole="button"
-                                        accessibilityLabel="Back"
+                                        accessibilityLabel={tr10("Back")}
                                         onPress={() => router.back()}
                                         className="h-10 w-10 items-center justify-center"
                                     >
@@ -229,6 +232,7 @@ export default function ArticleFormat({ article }: ArticleProps) {
                                     {renderParagraph(fulltext)}
                                 </Text>
                                 <View className="mb-10"></View>
+                                <View className="mb-5"></View>
                                 {nextkey !== 6 && nextarticle && (
                                     <NextCard
                                         key={nextarticle.key}
