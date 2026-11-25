@@ -9,14 +9,20 @@ import LearnCard from '@/features/learn/learncard';
 import { router } from 'expo-router';
 import AppIcon from '@/components/ui/app-icon';
 import { Articles } from '@/features/learn/data/Articles';
+import { ArticleText } from '@/features/learn/data/ArticleText';
 
 export default function LearnSearchScreen() {
   const { tr: tr10 } = useLocale10();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
-  const words = submittedQuery.toLowerCase().split(" ").filter(Boolean);
-  const matching = Articles.filter((article) => words.every((word) => [article.name, article.description].join(' ').toLowerCase().split(" ").some((wordbeg) => wordbeg.startsWith(word))));
+  const ignorewords = ['this', 'of', 'it', 'the', 'and', 'an', 'your', 'can', 'is', 'in', 'or', 'a', 'as', 'at', 'for', 'to', 'by', 'be', 'are', 'you'];
+  const words = submittedQuery.toLowerCase().split(/\s+/).filter((word) => Boolean(word) && !ignorewords.includes(word));
+  const matching = Articles.filter((article) => {
+    const articleText = ArticleText.find((text) => text.key === article.key);
+    const searchtext = [article.name, article.description, ...article.tags, ...(articleText?.paragraphs ?? [])].join(' ').toLowerCase();
+    return words.some((word) => searchtext.includes(word));
+  });
   return (
     <View className="flex-1 bg-white">
       <StatusBar style="dark" />

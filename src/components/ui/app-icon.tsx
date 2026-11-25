@@ -17,6 +17,7 @@ import {
   Scan,
   ClipboardList,
   FileText,
+  X,
   ChevronDown,
   ChevronUp,
 } from "lucide-react-native";
@@ -50,6 +51,7 @@ const icons = {
   Medications: Pill,
   Treatments: ClipboardList,
   Records: FileText,
+  Close: X,
   Dropdown: ChevronDown,
   OpenDropdown: ChevronUp,
 };
