@@ -1,8 +1,10 @@
 import { AppState } from 'react-native';
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type PropsWithChildren,
 } from 'react';
@@ -20,7 +22,8 @@ import {
   clearSessionTokens,
   getValidAccessToken,
   sessionGeneration,
-  storeSession,
+  subscribeSessionInvalidation,
+  establishSession,
   storedAccessExpiry,
   storedAccessToken,
 } from '../services/sessionTokens';
@@ -66,9 +69,9 @@ type SessionValue = {
 
   cancelMfa: () => void;
   getToken: () => Promise<string | null>;
-  replaceSession: (value: FullSession) => Promise<void>;
-  signOut: () => Promise<void>;
-  signOutAll: () => Promise<void>;
+  replaceSession: (value: FullSession) => Promise<number>;
+  signOut: () => Promise<{ remoteRevoked: boolean; epoch: number }>;
+  signOutAll: () => Promise<number>;
   clearLocalSession: () => Promise<void>;
 };
 
@@ -90,9 +93,66 @@ export function SessionProvider({
     useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const renderedSessionGeneration = sessionGeneration();
+  const loginAttempt = useRef(0);
+
+  const profileRevision = useRef(0);
+
+  const profileQueue = useRef<{
+    epoch: number;
+    tail: Promise<void>;
+  }>({
+    epoch: -1,
+    tail: Promise.resolve(),
+  });
+  const accountId = user?.id;
+
+  const getSessionToken = useCallback(async () => {
+    const epoch = renderedSessionGeneration;
+
+    if (
+      !accountId ||
+      epoch !== sessionGeneration()
+    ) {
+      return null;
+    }
+
+    const token = await getValidAccessToken();
+
+    if (epoch !== sessionGeneration()) {
+      return null;
+    }
+
+    return token;
+  }, [accountId, renderedSessionGeneration]);
+
+  function assertLoginAttempt(
+    epoch: number,
+    attempt: number,
+  ) {
+    if (
+      epoch !== sessionGeneration() ||
+      attempt !== loginAttempt.current
+    ) {
+      throw new Error('Login attempt is no longer active.');
+    }
+  }
+
+  useEffect(() => {
+    return subscribeSessionInvalidation(epoch => {
+      if (epoch !== sessionGeneration()) return;
+
+      loginAttempt.current++;
+
+      setUser(null);
+      setExpiresAt(null);
+      setPendingChallenge(null);
+    });
+  }, []);
 
   async function restore() {
     const epoch = sessionGeneration();
+    const revision = profileRevision.current;
 
     try {
       const token = await getToken();
@@ -109,18 +169,17 @@ export function SessionProvider({
 
       if (epoch !== sessionGeneration()) return;
 
-      setUser(account);
-      setExpiresAt(await storedAccessExpiry());
+      const expiry = await storedAccessExpiry();
+
+      if (epoch !== sessionGeneration()) return;
+
+      if (revision === profileRevision.current) {
+        setUser(account);
+      }
+
+      setExpiresAt(expiry);
     } catch (error) {
       if (epoch !== sessionGeneration()) {
-        // A rejected refresh may have cleared credentials.
-        // Never erase a newer login session.
-        if (
-          !await storedAccessToken().catch(() => null)
-        ) {
-          setUser(null);
-          setExpiresAt(null);
-        }
         return;
       }
 
@@ -130,11 +189,9 @@ export function SessionProvider({
         (error instanceof Error &&
           error.message.includes('Sign in again'))
       ) {
-        await clearSessionTokens()
-          .catch(() => undefined);
-
-        setUser(null);
-        setExpiresAt(null);
+        await clearSessionTokens().catch(() => {
+          console.warn('Local session cleanup failed.');
+        });
       }
     }
   }
@@ -164,8 +221,14 @@ export function SessionProvider({
           return;
         }
 
+        const expiry = await storedAccessExpiry();
+
+        if (!active || epoch !== sessionGeneration()) {
+          return;
+        }
+
         setUser(account);
-        setExpiresAt(await storedAccessExpiry());
+        setExpiresAt(expiry);
       } catch (error) {
         if (
           active &&
@@ -222,34 +285,68 @@ export function SessionProvider({
 
   async function applyLoginResult(
     result: FullSession,
-  ): Promise<Account> {
-    const epoch = sessionGeneration();
+    epoch: number,
+    attempt: number,
+    expectedOwner?: string,
+  ): Promise<{ account: Account; epoch: number }> {
+    assertLoginAttempt(epoch, attempt);
 
     const account = await authApi.me(
       result.accessToken,
     );
 
-    if (epoch !== sessionGeneration()) {
-      throw new Error('Session changed.');
+    assertLoginAttempt(epoch, attempt);
+
+    if (expectedOwner && account.id !== expectedOwner) {
+      throw new Error('Replacement session belongs to another account.');
     }
 
-    const expiry = await storeSession(result);
+    const pending = establishSession(
+      result,
+      epoch,
+      () => {
+        if (attempt !== loginAttempt.current) {
+          throw new Error(
+            'Login attempt is no longer active.',
+          );
+        }
+      },
+    );
 
-    if (epoch !== sessionGeneration()) {
-      throw new Error('Session changed.');
+    setUser(null);
+    setExpiresAt(null);
+
+    const committed = await pending;
+
+    try {
+      assertLoginAttempt(
+        committed.epoch,
+        attempt,
+      );
+    } catch (error) {
+      if (committed.epoch === sessionGeneration()) {
+        await clearSessionTokens();
+      }
+
+      throw error;
     }
 
     setUser(account);
-    setExpiresAt(expiry);
+    setExpiresAt(committed.expiry);
     setPendingChallenge(null);
 
-    return account;
+    return {
+      account,
+      epoch: committed.epoch,
+    };
   }
 
   async function handleFirstFactor(
     result: Awaited<
       ReturnType<typeof authApi.login>
     >,
+    epoch: number,
+    attempt: number,
   ): Promise<
     'mfa' | 'onboarding' | 'authenticated'
   > {
@@ -261,8 +358,8 @@ export function SessionProvider({
       return 'mfa';
     }
 
-    const account =
-      await applyLoginResult(result);
+    const { account } =
+      await applyLoginResult(result, epoch, attempt);
 
     return account.onboardingCompletedAt
       ? 'authenticated'
@@ -273,21 +370,35 @@ export function SessionProvider({
     email: string,
     password: string,
   ) {
+    const epoch = sessionGeneration();
+    const attempt = ++loginAttempt.current;
+
+    setPendingChallenge(null);
+
     const result = await authApi.login(
       email.trim().toLowerCase(),
       password,
     );
 
-    return handleFirstFactor(result);
+    assertLoginAttempt(epoch, attempt);
+
+    return handleFirstFactor(result, epoch, attempt);
   }
 
   async function loginWithGoogleToken(
     idToken: string,
   ) {
+    const epoch = sessionGeneration();
+    const attempt = ++loginAttempt.current;
+
+    setPendingChallenge(null);
+
     const result =
       await authApi.googleLogin(idToken);
 
-    return handleFirstFactor(result);
+    assertLoginAttempt(epoch, attempt);
+
+    return handleFirstFactor(result, epoch, attempt);
   }
 
   async function completeMfa(code: string) {
@@ -297,44 +408,135 @@ export function SessionProvider({
       );
     }
 
+    const epoch = sessionGeneration();
+    const attempt = ++loginAttempt.current;
+
     const result = await authApi.mfaVerify(
       pendingChallenge,
       code,
     );
 
-    const account =
-      await applyLoginResult(result);
+    assertLoginAttempt(epoch, attempt);
+
+    const { account } =
+      await applyLoginResult(result, epoch, attempt);
 
     return account.onboardingCompletedAt
       ? 'authenticated'
       : 'onboarding';
   }
 
-  async function updateAccountProfile(
-    body: ProfileUpdate,
-  ) {
-    const token = await getToken();
+  const updateAccountProfile = useCallback(
+    (body: ProfileUpdate): Promise<Account> => {
+      const epoch = renderedSessionGeneration;
+      const owner = accountId;
 
-    if (!token) {
-      throw Error(
-        'Sign in to save your profile.',
+      if (
+        !owner ||
+        epoch !== sessionGeneration()
+      ) {
+        return Promise.reject(
+          new Error('Sign in to save your profile.'),
+        );
+      }
+
+      if (profileQueue.current.epoch !== epoch) {
+        profileQueue.current = {
+          epoch,
+          tail: Promise.resolve(),
+        };
+      }
+
+      const queue = profileQueue.current;
+
+      // Capture the submitted values, rather than
+      // retaining a mutable form object.
+      const submitted = { ...body };
+
+      function assertCurrent() {
+        if (epoch !== sessionGeneration()) {
+          throw new Error(
+            'Session changed. Please try again.',
+          );
+        }
+      }
+
+      const task = queue.tail.then(async () => {
+        assertCurrent();
+
+        profileRevision.current++;
+
+        try {
+          const token = await getSessionToken();
+
+          assertCurrent();
+
+          if (!token) {
+            throw new Error(
+              'Sign in to save your profile.',
+            );
+          }
+
+          const next = await authApi.updateProfile(
+            token,
+            submitted,
+          );
+
+          assertCurrent();
+
+          if (next.id !== owner) {
+            throw new Error(
+              'Account mismatch. Please sign in again.',
+            );
+          }
+
+          setUser(current => {
+            if (
+              epoch !== sessionGeneration() ||
+              current?.id !== owner
+            ) {
+              return current;
+            }
+
+            return next;
+          });
+
+          return next;
+
+        } finally {
+          profileRevision.current++;
+        }
+      });
+
+      // A failed update must not block subsequent updates.
+      queue.tail = task.then(
+        () => undefined,
+        () => undefined,
       );
-    }
 
-    const next =
-      await authApi.updateProfile(token, body);
-
-    setUser(next);
-    return next;
-  }
+      return task;
+    },
+    [
+      accountId,
+      renderedSessionGeneration,
+      getSessionToken,
+    ],
+  );
 
   function cancelMfa() {
+    loginAttempt.current++;
     setPendingChallenge(null);
   }
 
   async function clearLocalSession() {
-    // Server already revoked every session.
-    // Never attempt another remote logout here.
+    if (
+      renderedSessionGeneration !== sessionGeneration()
+    ) {
+      throw new Error('Session changed.');
+    }
+
+    loginAttempt.current++;
+
     beginSessionTermination();
 
     setUser(null);
@@ -345,37 +547,66 @@ export function SessionProvider({
   }
 
   async function signOut() {
-    const accessPending =
-      getToken().catch(() => null);
+    const originalEpoch = renderedSessionGeneration;
 
-    beginSessionTermination();
+    if (originalEpoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
+
+    loginAttempt.current++;
+
+    // Capture only the current session's access token.
+    const access = await storedAccessToken()
+      .catch(() => null);
+
+    if (originalEpoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
+
+    // Local cleanup starts before any network operation.
+    const cleanup = clearSessionTokens();
+    const epoch = sessionGeneration();
 
     setUser(null);
     setExpiresAt(null);
     setPendingChallenge(null);
 
-    try {
-      const access =
-        (await accessPending) ||
-        await storedAccessToken();
+    await cleanup;
 
-      if (!access) {
-        throw new Error('No valid access token.');
+    let remoteRevoked = false;
+
+    if (
+      access &&
+      epoch === sessionGeneration()
+    ) {
+      try {
+        await authApi.logout(access);
+        remoteRevoked = true;
+      } catch {
+        console.warn(
+          'Remote sign-out could not be confirmed.',
+        );
       }
-
-      await authApi.logout(access);
-    } catch {
-      console.warn(
-        'Remote sign-out could not be confirmed.',
-      );
-    } finally {
-      await clearSessionTokens();
     }
+
+    return {
+      remoteRevoked,
+      epoch,
+    };
   }
 
   async function signOutAll() {
-    // Confirm server revocation before clearing local credentials.
+    const epoch = renderedSessionGeneration;
+
+    if (epoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
+
     const access = await getToken();
+
+    if (epoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
 
     if (!access) {
       throw new Error('Cannot verify your session. Sign in again and retry.');
@@ -383,11 +614,25 @@ export function SessionProvider({
 
     await authApi.logoutAll(access);
 
+    if (epoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
+
+    loginAttempt.current++;
     beginSessionTermination();
     setUser(null);
     setExpiresAt(null);
     setPendingChallenge(null);
-    await clearSessionTokens();
+    const cleanup = clearSessionTokens();
+    const clearedEpoch = sessionGeneration();
+
+    await cleanup;
+
+    if (clearedEpoch !== sessionGeneration()) {
+      throw new Error('Session changed.');
+    }
+
+    return clearedEpoch;
   }
 
   const role: UserRole = !user
@@ -410,9 +655,29 @@ export function SessionProvider({
         loginWithGoogleToken,
         completeMfa,
         cancelMfa,
-        getToken,
+        getToken: getSessionToken,
         replaceSession: async value => {
-          await applyLoginResult(value);
+          const epoch = renderedSessionGeneration;
+          const owner = user?.id;
+
+          if (!owner || epoch !== sessionGeneration()) {
+            throw new Error('Session changed.');
+          }
+
+          const attempt = ++loginAttempt.current;
+
+          const committed = await applyLoginResult(
+            value,
+            epoch,
+            attempt,
+            owner,
+          );
+
+          if (committed.epoch !== sessionGeneration()) {
+            throw new Error('Session changed.');
+          }
+
+          return committed.epoch;
         },
         updateAccountProfile,
         signOut,
