@@ -77,12 +77,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
-  message: {
-    fontFamily: "Georgia",
-    fontSize: 20,
-    marginBottom: 20,
-    textAlign: "center",
-  },
   answersContainer: {
     flex: 1,
     marginBottom: 20,

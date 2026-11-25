@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Pressable } from "react-native";
 
 export default function CasLanding() {
   return (
-
     <View style={styles.container}>
       <Text style={styles.title}>TED CAS Assessment</Text>
       <Text style={styles.subtitle}>Answer questions for better self-monitoring</Text>

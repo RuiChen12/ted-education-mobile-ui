@@ -16,7 +16,7 @@ const TrackCard = (props: TrackCardProps) => {
       <Pressable
           accessibilityRole="button"
           accessibilityLabel={props.accessibilityLabel}
-          className=" mt-2 min-h-[100px] w-[100%] py-5 flex-row items-center justify-center rounded-2xl active:opacity-80 border-solid"
+          className=" mt-2 min-h-[100px] w-[100%] py-5 flex-row items-center justify-center rounded-2xl active:opacity-80"
           style={{
               backgroundColor: '#ffffff',
               borderWidth: 2,

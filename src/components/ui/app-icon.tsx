@@ -20,7 +20,7 @@ import {
   Notebook,
   Camera,
   ClipboardCheck,
-  X
+  X,
   ChevronDown,
   ChevronUp,
 } from "lucide-react-native";
